@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="НомТан — номыг хайж, хадгалж, уншаарай.">
+  <title>НомТан • Номын сан</title>
+  <style>
+    :root {
+      --bg:        #0a0c1a;
+      --panel:     rgba(255,255,255,.08);
+      --panel-2:   rgba(255,255,255,.12);
+      --border:    rgba(255,255,255,.13);
+      --shadow:    0 12px 30px rgba(0,0,0,.45);
+      --radius:    20px;
+
+      --primary:   #7b68ee;
+      --secondary: #ba55d3;
+      --accent:    #5b9bd5;
+      --success:   #4ade80;
+      --danger:    #f87171;
+      --warn:      #fbbf24;
+
+      --color-text:        #ffffff;
+      --color-heading:     #ffffff;
+      --color-muted:       rgba(255,255,255,.68);
+      --color-link:        rgba(255,255,255,.82);
+      --color-placeholder: rgba(255,255,255,.38);
+      --color-price:       #5b9bd5;
+      --color-rating:      #5b9bd5;
+      --color-stat:        #5b9bd5;
+      --color-brand:       #7b68ee;
+      --color-tag:         #ffffff;
+      --color-badge:       #ffffff;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(ellipse 1200px 700px at 20%  0%,  rgba(123,104,238,.18), transparent 60%),
+        radial-gradient(ellipse  900px 600px at 80% 20%,  rgba(186, 85,211,.15), transparent 60%),
+        radial-gradient(ellipse  900px 600px at 40% 95%,  rgba( 70,130,180,.15), transparent 60%),
+        var(--bg);
+      color: var(--color-text);
+      min-height: 100vh;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .container { width: min(1160px, 94%); margin: 0 auto; }
+    .sr-only   { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    .hidden    { display: none !important; }
+    .muted     { color: var(--color-muted); }
+    .link      { color: var(--color-link); }
+    .link:hover{ color: var(--color-text); text-decoration: underline; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--panel), rgba(255,255,255,.04));
+      color: var(--color-text);
+      padding: 11px 16px; border-radius: var(--radius);
+      cursor: pointer; box-shadow: var(--shadow);
+      transition: transform .2s, background .2s, border-color .2s, box-shadow .2s;
+      font-weight: 500; font-size: 14px; line-height: 1; white-space: nowrap;
+    }
+    .btn:hover  { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+    .btn:active { transform: translateY(0); }
+    .btn--ghost   { background: transparent; box-shadow: none; }
+    .btn--sm      { padding: 7px 12px; border-radius: 12px; font-size: 13px; }
+    .btn--wide    { width: 100%; padding: 12px; border-radius: 14px; font-weight: 600; }
+    .btn--primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); border-color: var(--primary); color: #fff; }
+    .btn--primary:hover { background: linear-gradient(135deg, var(--secondary), var(--primary)); border-color: var(--secondary); }
+    .btn--success { background: linear-gradient(135deg, #166534, #15803d); border-color: var(--success); color: #fff; }
+    .btn--floating{
+      position:fixed; bottom:24px; right:24px; width:50px; height:50px;
+      border-radius:50%; padding:0;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border:1px solid var(--primary); color:#fff; font-size:20px; cursor:pointer;
+      box-shadow:0 8px 24px rgba(123,104,238,.4);
+      opacity:0; visibility:hidden;
+      transition:opacity .3s, visibility .3s, transform .2s;
+    }
+    .btn--floating:hover { transform: translateY(-3px) scale(1.05); }
+    .btn--floating.show  { opacity:1; visibility:visible; }
+
+    .btn:focus-visible,
+    .search__btn:focus-visible,
+    .search__input:focus-visible,
+    .chip:focus-visible,
+    .nav__link:focus-visible,
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      background: rgba(10,12,26,.85);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar__inner { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:13px 0; }
+
+    .brand       { display:flex; align-items:center; gap:10px; }
+    .brand__logo { width:40px; height:40px; display:grid; place-items:center; border-radius:14px; background:rgba(106,90,205,.2); border:1px solid var(--primary); font-size:20px; }
+    .brand__name { font-weight:800; letter-spacing:.2px; font-size:17px; color:var(--color-brand); }
+
+    .nav          { display:flex; gap:6px; padding:5px; border:1px solid var(--border); background:rgba(255,255,255,.06); border-radius:14px; }
+    .nav__link    { padding:9px 14px; border-radius:12px; font-size:14px; color:var(--color-muted); transition:background .2s, color .2s; }
+    .nav__link:hover    { background:var(--panel); color:var(--color-text); }
+    .nav__link.is-active{ background:var(--primary); color:#fff; }
+
+    .topbar__actions { display:flex; align-items:center; gap:10px; }
+
+    .hero { padding: 48px 0 28px; }
+
+    .hero__box {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 24px 64px rgba(0,0,0,.5);
+      overflow: hidden;
+    }
+
+    .hero__left  { padding: 48px 44px; border-right: 1px solid var(--border); }
+    .hero__right { padding: 36px 28px; display:flex; align-items:center; justify-content:center; background:rgba(106,90,205,.04); }
+
+    .pill { display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:999px; background:rgba(106,90,205,.15); border:1px solid var(--primary); color:var(--primary); font-size:13px; }
+
+    .hero__title {
+      margin: 18px 0 14px;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.1; letter-spacing: -.5px;
+      background: linear-gradient(135deg, var(--color-heading), rgba(255,255,255,.68));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero__desc { margin: 0 0 22px; color: var(--color-muted); font-size: 16px; max-width: 52ch; line-height: 1.6; }
+
+    .search        { display:flex; gap:10px; padding:10px; background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); }
+    .search__input { flex:1; border:0; outline:none; background:transparent; color:var(--color-text); font-size:15px; padding:9px 12px; }
+    .search__input::placeholder { color: var(--color-placeholder); }
+    .search__btn   { border:1px solid var(--primary); background:linear-gradient(135deg, var(--primary), var(--secondary)); color:#fff; padding:9px 18px; border-radius:14px; cursor:pointer; font-weight:600; font-size:14px; transition:background .2s, transform .15s; }
+    .search__btn:hover { background:linear-gradient(135deg, var(--secondary), var(--primary)); transform:scale(1.04); }
+
+    .hero__stats { margin-top:20px; display:flex; gap:12px; flex-wrap:wrap; }
+    .stat        { padding:12px 16px; border-radius:16px; background:rgba(255,255,255,.06); border:1px solid var(--border); }
+    .stat__num   { font-weight:800; color:var(--color-stat); font-size:18px; }
+    .stat__label { font-size:11px; color:var(--color-muted); margin-top:3px; }
+
+    .phone         { border-radius:24px; border:1px solid rgba(255,255,255,.16); background:linear-gradient(180deg, rgba(106,90,205,.12), rgba(65,105,225,.05)); box-shadow:var(--shadow); overflow:hidden; width:100%; max-width:290px; }
+    .phone__top    { display:flex; align-items:center; gap:8px; padding:11px 13px; border-bottom:1px solid rgba(255,255,255,.12); background:rgba(106,90,205,.1); }
+    .dot           { width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.25); flex-shrink:0; }
+    .phone__title  { margin-left:6px; font-weight:700; color:var(--primary); font-size:14px; }
+    .phone__content{ padding:13px; display:grid; gap:10px; }
+
+    .mini-card  { display:flex; gap:10px; padding:10px; border-radius:14px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); }
+    .mini-cover { width:46px; height:58px; border-radius:10px; display:grid; place-items:center; font-weight:900; font-size:11px; letter-spacing:.3px; background:linear-gradient(135deg, var(--primary), var(--secondary)); border:1px solid var(--primary); color:#fff; flex-shrink:0; text-align:center; line-height:1.2; }
+    .mini-meta  { flex:1; min-width:0; }
+    .mini-title { font-weight:800; font-size:12px; color:var(--color-text); line-height:1.35; }
+    .mini-sub   { font-size:11px; color:var(--color-muted); margin-top:2px; }
+    .mini-row   { margin-top:6px; display:flex; align-items:center; justify-content:space-between; }
+    .tag        { font-size:10px; padding:3px 7px; border-radius:999px; border:1px solid var(--primary); background:var(--primary); color:var(--color-tag); }
+    .tag--soft  { background:rgba(255,255,255,.06); color:var(--primary); }
+    .tag--warn  { background:rgba(255,180,0,.18); border-color:rgba(255,180,0,.3); color:var(--warn); }
+    .rating     { color:var(--color-rating); font-size:11px; }
+
+    .section       { padding:32px 0; }
+    .section--soft { background:rgba(106,90,205,.05); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+    .section__head { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-bottom:18px; }
+    .section__title{ margin:0; font-size:22px; letter-spacing:-.2px; color:var(--color-heading); }
+
+    #searchResults  { padding: 8px 0 0; }
+    .search-banner  { background:rgba(123,104,238,.1); border:1px solid var(--primary); border-radius:14px; padding:11px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--color-muted); }
+    .search-banner strong { color:var(--primary); }
+
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:20px; }
+
+    .card       { border-radius:var(--radius); background:var(--panel); border:1px solid var(--border); overflow:hidden; box-shadow:var(--shadow); transition:transform .3s, border-color .3s, box-shadow .3s; }
+    .card:hover { transform:translateY(-8px) scale(1.02); border-color:var(--primary); box-shadow:0 20px 50px rgba(0,0,0,.6); }
+
+    .card__cover  { padding:14px; }
+    .cover        { height:148px; border-radius:16px; display:grid; place-items:center; font-weight:900; font-size:30px; letter-spacing:1px; border:2px solid rgba(255,255,255,.2); color:#fff; transition:transform .3s; }
+    .cover:hover  { transform:scale(1.04); }
+    .cover--1 { background:linear-gradient(135deg, var(--primary), var(--accent)); }
+    .cover--2 { background:linear-gradient(135deg, var(--secondary), var(--primary)); }
+    .cover--3 { background:linear-gradient(135deg, #8a2be2, var(--secondary)); }
+    .cover--4 { background:linear-gradient(135deg, var(--accent), #6a5acd); }
+    .cover--5 { background:linear-gradient(135deg, #daa520, var(--primary)); }
+
+    .card__body    { padding:14px 16px 16px; }
+    .card__title   { margin:0; font-size:16px; font-weight:700; color:var(--color-heading); }
+    .card__sub     { margin:6px 0 10px; font-size:13px; color:var(--color-muted); }
+    .card__row     { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .badge         { font-size:12px; padding:4px 9px; border-radius:999px; border:1px solid var(--primary); background:var(--primary); color:var(--color-badge); }
+    .badge--soft   { background:rgba(255,255,255,.06); color:var(--primary); border-color:var(--primary); }
+    .price         { font-weight:800; color:var(--color-price); font-size:15px; }
+    .card__actions { margin-top:11px; display:flex; gap:8px; }
+
+    .chips { display:flex; gap:10px; flex-wrap:wrap; }
+    .chip  { padding:10px 18px; border-radius:50px; border:1px solid var(--primary); background:rgba(123,104,238,.1); color:var(--primary); cursor:pointer; transition:background .2s, transform .2s, box-shadow .2s; font-weight:500; font-size:14px; }
+    .chip:hover, .chip.active { background:var(--primary); color:#fff; transform:translateY(-2px); box-shadow:0 8px 20px rgba(123,104,238,.3); }
+
+    .list      { display:grid; gap:10px; }
+    .row       { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:15px; border-radius:var(--radius); border:1px solid var(--border); background:var(--panel); transition:background .2s, border-color .2s, transform .2s; }
+    .row:hover { background:var(--panel-2); border-color:var(--primary); transform:translateX(4px); }
+    .row__left  { display:flex; align-items:center; gap:12px; }
+    .row__icon  { width:40px; height:40px; border-radius:14px; display:grid; place-items:center; border:1px solid var(--primary); background:rgba(106,90,205,.15); font-size:18px; flex-shrink:0; }
+    .row__title { font-weight:800; font-size:14px; color:var(--color-text); }
+    .row__sub   { font-size:12px; color:var(--color-muted); margin-top:2px; }
+    .row__right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+
+    #toast { position:fixed; bottom:84px; right:24px; z-index:2000; padding:11px 16px; border-radius:14px; background:rgba(16,18,36,.96); border:1px solid var(--border); font-size:14px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,.4); opacity:0; visibility:hidden; transform:translateY(8px); transition:all .3s; max-width:280px; pointer-events:none; }
+    #toast.show          { opacity:1; visibility:visible; transform:translateY(0); }
+    #toast.toast--success{ border-color:var(--success); color:var(--success); }
+    #toast.toast--error  { border-color:var(--danger);  color:var(--danger); }
+    #toast.toast--info   { border-color:var(--accent);  color:var(--accent); }
+
+    .modal              { position:fixed; inset:0; z-index:1000; display:none; align-items:center; justify-content:center; }
+    .modal[aria-hidden="false"] { display:flex; }
+    .modal__overlay     { position:absolute; inset:0; background:rgba(0,0,0,.76); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+    .modal__content     { position:relative; background:#0f1128; border:1px solid var(--border); border-radius:var(--radius); padding:28px; max-width:420px; width:92%; box-shadow:0 20px 60px rgba(0,0,0,.6); animation:fadeInUp .3s ease-out; }
+    .modal__close       { position:absolute; top:14px; right:14px; background:rgba(255,255,255,.06); border:1px solid var(--border); width:32px; height:32px; border-radius:50%; font-size:18px; color:var(--color-muted); cursor:pointer; transition:all .2s; display:grid; place-items:center; }
+    .modal__close:hover { color:var(--color-text); background:rgba(255,255,255,.12); }
+    .modal__title       { margin:0 0 20px; font-size:20px; color:var(--color-heading); }
+
+    .auth-tabs        { display:flex; margin-bottom:22px; border-bottom:1px solid var(--border); }
+    .auth-tab         { flex:1; padding:10px; background:none; border:none; color:var(--color-muted); cursor:pointer; transition:all .2s; font-size:14px; }
+    .auth-tab.active  { color:var(--primary); border-bottom:2px solid var(--primary); }
+
+    .auth-form        { display:flex; flex-direction:column; gap:14px; }
+    .form-group       { display:flex; flex-direction:column; gap:5px; }
+    .form-group label { font-weight:500; font-size:13px; color:rgba(255,255,255,.8); }
+    .form-group input { padding:11px 13px; border:1px solid var(--border); border-radius:12px; background:var(--panel); color:var(--color-text); font-size:14px; transition:border-color .2s; }
+    .form-group input::placeholder { color: var(--color-placeholder); }
+    .form-group input:focus { outline:none; border-color:var(--primary); }
+    .auth-message     { margin-top:12px; text-align:center; font-weight:500; font-size:14px; min-height:18px; }
+
+    .purchase-book-row   { display:flex; align-items:center; gap:14px; padding:14px; border-radius:16px; background:var(--panel); border:1px solid var(--border); margin-bottom:16px; }
+    .purchase-mini-cover { width:48px; height:60px; border-radius:10px; display:grid; place-items:center; font-weight:900; font-size:12px; background:linear-gradient(135deg, var(--primary), var(--secondary)); color:#fff; flex-shrink:0; }
+    .purchase-book-title { font-weight:700; font-size:15px; margin-bottom:4px; color:var(--color-heading); }
+    .purchase-book-price { color:var(--color-price); font-weight:800; font-size:18px; }
+    .purchase-note       { font-size:13px; color:var(--color-muted); margin:0 0 16px; line-height:1.55; }
+
+    .footer        { padding:32px 0 48px; border-top:1px solid var(--border); }
+    .footer__inner { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; }
+    .footer__brand { font-weight:900; font-size:18px; margin-bottom:6px; color:var(--color-brand); }
+
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .section  { animation:fadeInUp .65s ease-out; }
+    .card     { animation:fadeInUp .5s ease-out both; }
+    .card:nth-child(1){ animation-delay:.04s; }
+    .card:nth-child(2){ animation-delay:.11s; }
+    .card:nth-child(3){ animation-delay:.18s; }
+    .card:nth-child(4){ animation-delay:.25s; }
+    .card:nth-child(5){ animation-delay:.32s; }
+    .row      { animation:fadeInUp .5s ease-out both; }
+    .row:nth-child(1){ animation-delay:.04s; }
+    .row:nth-child(2){ animation-delay:.11s; }
+    .row:nth-child(3){ animation-delay:.18s; }
+
+    @media (max-width: 900px) {
+      .hero__box   { grid-template-columns: 1fr; }
+      .hero__left  { border-right:none; border-bottom:1px solid var(--border); padding:34px 26px; }
+      .hero__right { padding:26px; }
+    }
+    @media (max-width: 768px) {
+      .nav  { display:none; }
+      .grid { grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); }
+    }
+    @media (max-width: 480px) {
+      .topbar__actions { display:none; }
+      .grid { grid-template-columns:1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior:auto; }
+      *, *::before, *::after { animation:none !important; transition:none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <a class="sr-only" href="#home">Үндсэн агуулга руу үсрэх</a>
+
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <div class="brand">
+        <div class="brand__logo" aria-hidden="true">📚</div>
+        <span class="brand__name">НомТан</span>
+      </div>
+      <nav class="nav" aria-label="Үндсэн навигаци">
+        <a class="nav__link is-active" href="#home">Нүүр</a>
+        <a class="nav__link" href="#featured">Онцлох</a>
+        <a class="nav__link" href="#categories">Ангилал</a>
+        <a class="nav__link" href="#new">Шинэ</a>
+      </nav>
+      <div class="topbar__actions">
+        <button class="btn btn--ghost" id="signInBtn" type="button">Нэвтрэх</button>
+        <button class="btn btn--primary" id="getAppBtn" type="button">Апп татах</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="home">
+
+    <section class="hero">
+      <div class="container">
+        <div class="hero__box">
+          <div class="hero__left">
+            <span class="pill">📖 Аппликейшн загвартай номын дэлгүүр</span>
+            <h1 class="hero__title">Дараагийн дуртай номоо ол.</h1>
+            <p class="hero__desc">Ном хайж, хадгалж, дэлгэрэнгүй мэдээллийг цэвэр мобайл аппликейшн шиг уншаарай — гагцхүү вэбээр.</p>
+            <form class="search" id="search-form" role="search">
+              <label class="sr-only" for="book-search">Ном хайх</label>
+              <input id="book-search" class="search__input" type="search" placeholder="Гарчиг, зохиолч, ISBN-ээр хайх..." autocomplete="off">
+              <button class="search__btn" type="submit">Хайх</button>
+            </form>
+            <div class="hero__stats" id="hero-stats"></div>
+          </div>
+          <div class="hero__right">
+            <div class="phone">
+              <div class="phone__top">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                <span class="phone__title">НомТан</span>
+              </div>
+              <div class="phone__content" id="phone-content"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="searchResults" class="hidden">
+      <div class="container">
+        <div id="searchBanner" class="search-banner"></div>
+        <div id="searchGrid" class="grid"></div>
+      </div>
+    </section>
+
+    <section id="featured" class="section">
+      <div class="container">
+        <div class="section__head">
+          <h2 class="section__title">Онцлох номнууд</h2>
+          <a class="link" href="#new">Дэлгэрэнгүй →</a>
+        </div>
+        <div class="grid" id="featured-grid"></div>
+      </div>
+    </section>
+
+    <section id="categories" class="section section--soft">
+      <div class="container">
+        <div class="section__head">
+          <h2 class="section__title">Ангилалаар үзэх</h2>
+          <span class="muted">Сонирхсон ангилалаа сонго</span>
+        </div>
+        <div class="chips" id="category-chips"></div>
+      </div>
+    </section>
+
+    <section id="new" class="section">
+      <div class="container">
+        <div class="section__head">
+          <h2 class="section__title">Шинэ ирсэн номнууд</h2>
+          <a class="link" href="#home">Дээш ↑</a>
+        </div>
+        <div class="list" id="new-list"></div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container footer__inner">
+        <div>
+          <div class="footer__brand">НомТан</div>
+          <span class="muted">2026 онд гаргасан.</span>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <div id="purchaseModal" class="modal" role="dialog" aria-labelledby="purchaseTitle" aria-hidden="true">
+    <div class="modal__overlay" id="purchaseOverlay"></div>
+    <div class="modal__content">
+      <button class="modal__close" id="purchaseClose" aria-label="Хаах">&times;</button>
+      <h2 class="modal__title" id="purchaseTitle">Ном худалдан авах</h2>
+      <div id="purchaseDetails"></div>
+      <button id="confirmPurchase" class="btn btn--wide btn--primary">Худалдан авалт баталгаажуулах</button>
+      <div id="purchaseMessage" class="auth-message"></div>
+    </div>
+  </div>
+
+  <div id="authModal" class="modal" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal__overlay" id="modalOverlay"></div>
+    <div class="modal__content">
+      <button class="modal__close" id="modalClose" aria-label="Хаах">&times;</button>
+      <h2 class="modal__title" id="modalTitle">Нэвтрэх</h2>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="loginTab">Нэвтрэх</button>
+        <button class="auth-tab" id="registerTab">Бүртгүүлэх</button>
+      </div>
+      <form id="authForm" class="auth-form">
+        <div class="form-group">
+          <label for="username">Нэвтрэх нэр</label>
+          <input type="text" id="username" name="username" placeholder="Нэвтрэх нэрээ оруулна уу" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Нууц үг</label>
+          <input type="password" id="password" name="password" placeholder="Нууц үгээ оруулна уу" required>
+        </div>
+        <div class="form-group hidden" id="confirmPasswordGroup">
+          <label for="confirmPassword">Нууц үг давтах</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Нууц үгээ дахин оруулна уу">
+        </div>
+        <button type="submit" class="btn btn--wide btn--primary" id="authSubmit">Нэвтрэх</button>
+      </form>
+      <div id="authMessage" class="auth-message"></div>
+    </div>
+  </div>
+
+  <button id="backToTop" class="btn btn--floating" type="button" aria-label="Дээш гарах">↑</button>
+
+  <script>
+
+  const DATA = {
+    stats: [
+      { num: "12К+", label: "Ном" },
+      { num: "1.2К", label: "Зохиолч" },
+      { num: "4.8★", label: "Дундаж үнэлгээ" }
+    ],
+
+    categories: [
+      { id: "all",            label: "Бүгд" },
+      { id: "Шинжлэх ухаан", label: "Шинжлэх ухаан" },
+      { id: "Програмчлал",   label: "Програмчлал" },
+      { id: "Дизайн",        label: "Дизайн" },
+      { id: "Бизнес",        label: "Бизнес" },
+      { id: "Хувийн хөгжил", label: "Хувийн хөгжил" },
+      { id: "Түүх",          label: "Түүх" },
+      { id: "Уран зохиол",   label: "Уран зохиол" }
+    ],
+
+    featuredBooks: [
+      { id: "1", cover: "ӨМ", coverClass: "cover--1", title: "Мэдээллийн Шинжлэх Ухааны Танилцуулга", author: "А. Зохиолч", year: 2026, rating: 4.7, price: "₮69,900", category: "Шинжлэх ухаан" },
+      { id: "2", cover: "JS", coverClass: "cover--2", title: "JavaScript Үндэс",                        author: "Б. Зохиолч", year: 2025, rating: 4.5, price: "₮52,500", category: "Програмчлал"   },
+      { id: "3", cover: "ДЗ", coverClass: "cover--3", title: "Хүнд зориулсан Дизайн",                  author: "В. Зохиолч", year: 2026, rating: 4.9, price: "₮78,750", category: "Дизайн"         },
+      { id: "4", cover: "SQL",coverClass: "cover--4", title: "SQL Практик дээр",                        author: "Г. Зохиолч", year: 2024, rating: 4.6, price: "₮63,875", category: "Програмчлал"   },
+      { id: "5", cover: "PY", coverClass: "cover--5", title: "Python Мэргэшил",                         author: "Х. Зохиолч", year: 2026, rating: 4.8, price: "₮87,465", category: "Програмчлал"   }
+    ],
+
+    phonePreviews: [
+      { cover: "ӨМ", title: "Мэдээллийн Шинжлэх Ухааны Танилцуулга", sub: "А. Зохиолч", tagLabel: "Алдартай",  tagClass: "",          rating: "★ 4.7" },
+      { cover: "JS", title: "JavaScript Үндэс",                        sub: "Б. Зохиолч", tagLabel: "Анхан шат", tagClass: "tag--soft",  rating: "★ 4.5" },
+      { cover: "ДЗ", title: "Хүнд зориулсан Дизайн",                  sub: "В. Зохиолч", tagLabel: "Шинэ",       tagClass: "tag--warn",  rating: "★ 4.9" }
+    ],
+
+    newArrivals: [
+      { icon: "🔥", title: "Цэвэр Кодын Тэмдэглэл", sub: "Д. Зохиолч • Програмчлал",    rating: "★ 4.8" },
+      { icon: "✨", title: "UI Загварууд",            sub: "Е. Зохиолч • Дизайн",         rating: "★ 4.6" },
+      { icon: "💡",title: "Анхаарал & Зуршил",       sub: "Ж. Зохиолч • Хувийн хөгжил", rating: "★ 4.4" }
+    ]
+  };
+
+  function renderStats() {
+    document.getElementById('hero-stats').innerHTML =
+      DATA.stats.map(s => `
+        <div class="stat">
+          <div class="stat__num">${s.num}</div>
+          <div class="stat__label">${s.label}</div>
+        </div>`).join('');
+  }
+
+  function renderPhonePreviews() {
+    document.getElementById('phone-content').innerHTML =
+      DATA.phonePreviews.map(p => `
+        <div class="mini-card">
+          <div class="mini-cover">${p.cover}</div>
+          <div class="mini-meta">
+            <div class="mini-title">${p.title}</div>
+            <div class="mini-sub">${p.sub}</div>
+            <div class="mini-row">
+              <span class="tag ${p.tagClass}">${p.tagLabel}</span>
+              <span class="rating">${p.rating}</span>
+            </div>
+          </div>
+        </div>`).join('') +
+      `<button class="btn btn--wide btn--primary" type="button">Номын сан нээх</button>`;
+  }
+
+  function buildBookCard(b) {
+    return `
+      <article class="card" data-category="${b.category}">
+        <div class="card__cover"><div class="cover ${b.coverClass}">${b.cover}</div></div>
+        <div class="card__body">
+          <h3 class="card__title">${b.title}</h3>
+          <p class="card__sub">${b.author} • ${b.year}</p>
+          <div class="card__row">
+            <span class="badge">★ ${b.rating}</span>
+            <span class="price">${b.price}</span>
+          </div>
+          <div class="card__actions">
+            <button class="btn btn--sm btn--primary buy-btn" data-book-id="${b.id}" type="button">Худалдан авах</button>
+            <button class="btn btn--ghost btn--sm save-btn" data-book-id="${b.id}" type="button">Хадгалах</button>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  function renderFeaturedBooks(books) {
+    const grid = document.getElementById('featured-grid');
+    grid.innerHTML = books.map(buildBookCard).join('');
+    attachBuySaveListeners(grid);
+    updateOwnedBooks();
+  }
+
+  function renderCategories() {
+    document.getElementById('category-chips').innerHTML =
+      DATA.categories.map(c => `
+        <button class="chip${c.id === 'all' ? ' active' : ''}" type="button" data-cat="${c.id}">${c.label}</button>`).join('');
+  }
+
+  function renderNewArrivals() {
+    document.getElementById('new-list').innerHTML =
+      DATA.newArrivals.map(n => `
+        <div class="row">
+          <div class="row__left">
+            <div class="row__icon" aria-hidden="true">${n.icon}</div>
+            <div>
+              <div class="row__title">${n.title}</div>
+              <div class="row__sub">${n.sub}</div>
+            </div>
+          </div>
+          <div class="row__right">
+            <span class="badge badge--soft">${n.rating}</span>
+            <button class="btn btn--sm btn--primary" type="button">Нээх</button>
+          </div>
+        </div>`).join('');
+  }
+
+  renderStats();
+  renderPhonePreviews();
+  renderCategories();
+  renderFeaturedBooks(DATA.featuredBooks);
+  renderNewArrivals();
+
+  const BOOK_MAP = Object.fromEntries(DATA.featuredBooks.map(b => [b.id, b]));
+
+  function showToast(msg, type = 'info') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `show toast--${type}`;
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.className = ''; }, 3000);
+  }
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let currentUser   = null;
+  let currentBookId = null;
+  let isLogin       = true;
+
+  const signInBtn   = document.getElementById('signInBtn');
+  const authModal   = document.getElementById('authModal');
+  const modalOverlay= document.getElementById('modalOverlay');
+  const modalClose  = document.getElementById('modalClose');
+  const loginTab    = document.getElementById('loginTab');
+  const registerTab = document.getElementById('registerTab');
+  const authForm    = document.getElementById('authForm');
+  const authSubmit  = document.getElementById('authSubmit');
+  const authMessage = document.getElementById('authMessage');
+  const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+  const modalTitle  = document.getElementById('modalTitle');
+
+  const purchaseModal   = document.getElementById('purchaseModal');
+  const purchaseOverlay = document.getElementById('purchaseOverlay');
+  const purchaseClose   = document.getElementById('purchaseClose');
+  const confirmPurchase = document.getElementById('confirmPurchase');
+  const purchaseDetails = document.getElementById('purchaseDetails');
+  const purchaseMessage = document.getElementById('purchaseMessage');
+
+  const stored = localStorage.getItem('loggedInUser');
+  if (stored) { currentUser = stored; setLoggedInUI(stored); updateOwnedBooks(); }
+
+  function setLoggedInUI(username) {
+    const h = new Date().getHours();
+    const g = h < 12 ? 'Өглөөний мэнд' : h < 18 ? 'Өдрийн мэнд' : 'Оройн мэнд';
+    signInBtn.textContent = `${g}, ${username}!`;
+    signInBtn.disabled = true;
+  }
+
+  document.getElementById('search-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const raw = document.getElementById('book-search').value.trim();
+    const q   = raw.toLowerCase();
+    const sec = document.getElementById('searchResults');
+    const ban = document.getElementById('searchBanner');
+    const grd = document.getElementById('searchGrid');
+
+    if (!q) { sec.classList.add('hidden'); return; }
+
+    const matches = DATA.featuredBooks.filter(b =>
+      b.title.toLowerCase().includes(q) ||
+      b.author.toLowerCase().includes(q) ||
+      b.category.toLowerCase().includes(q)
+    );
+
+    ban.innerHTML = `<span>«<strong>${raw}</strong>» — <strong>${matches.length}</strong> ном олдлоо</span>
+      <button class="btn btn--ghost btn--sm" id="clearSearch">✕ Арилгах</button>`;
+    document.getElementById('clearSearch').addEventListener('click', () => {
+      document.getElementById('book-search').value = '';
+      sec.classList.add('hidden');
+    });
+
+    grd.innerHTML = matches.length
+      ? matches.map(buildBookCard).join('')
+      : `<p style="color:var(--color-muted);grid-column:1/-1;padding:12px 0;">Тохирох ном олдсонгүй.</p>`;
+
+    if (matches.length) { attachBuySaveListeners(grd); updateOwnedBooks(); }
+    sec.classList.remove('hidden');
+    sec.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+  });
+
+  document.getElementById('category-chips').addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    const cat = chip.dataset.cat;
+    renderFeaturedBooks(cat === 'all' ? DATA.featuredBooks : DATA.featuredBooks.filter(b => b.category === cat));
+  });
+
+  function attachBuySaveListeners(container) {
+    container.querySelectorAll('.buy-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const id = e.currentTarget.dataset.bookId;
+        currentBookId = id;
+        if (!currentUser) { openModal(); authMessage.textContent = 'Худалдан авахын тулд нэвтэрнэ үү.'; authMessage.style.color = 'var(--accent)'; return; }
+        showPurchaseModal(id);
+      });
+    });
+    container.querySelectorAll('.save-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const id = e.currentTarget.dataset.bookId;
+        if (!currentUser) { openModal(); authMessage.textContent = 'Хадгалахын тулд нэвтэрнэ үү.'; authMessage.style.color = 'var(--accent)'; return; }
+        const list = JSON.parse(localStorage.getItem(`saved_${currentUser}`) || '[]');
+        if (list.includes(id)) { showToast('Энэ ном аль хэдийн хадгалагдсан байна.', 'info'); return; }
+        list.push(id);
+        localStorage.setItem(`saved_${currentUser}`, JSON.stringify(list));
+        showToast(`"${BOOK_MAP[id]?.title}" номыг хадгаллаа!`, 'success');
+      });
+    });
+  }
+
+  function showPurchaseModal(id) {
+    const b = BOOK_MAP[id];
+    if (!b) return;
+    purchaseDetails.innerHTML = `
+      <div class="purchase-book-row">
+        <div class="purchase-mini-cover ${b.coverClass}">${b.cover}</div>
+        <div>
+          <div class="purchase-book-title">${b.title}</div>
+          <div class="purchase-book-price">${b.price}</div>
+        </div>
+      </div>
+      <p class="purchase-note">Худалдан авалт баталгаажуулснаар та энэ номд бүрэн хандах эрх авна.</p>`;
+    purchaseModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    purchaseMessage.textContent = '';
+  }
+
+  purchaseClose.addEventListener('click', closePurchaseModal);
+  purchaseOverlay.addEventListener('click', closePurchaseModal);
+  function closePurchaseModal() {
+    purchaseModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    purchaseMessage.textContent = '';
+  }
+
+  confirmPurchase.addEventListener('click', () => {
+    if (!currentUser || !currentBookId) return;
+    const owned = JSON.parse(localStorage.getItem(`owned_${currentUser}`) || '[]');
+    if (owned.includes(currentBookId)) {
+      purchaseMessage.textContent = 'Та энэ номыг аль хэдийн худалдан авсан байна.';
+      purchaseMessage.style.color = 'var(--accent)'; return;
+    }
+    owned.push(currentBookId);
+    localStorage.setItem(`owned_${currentUser}`, JSON.stringify(owned));
+    purchaseMessage.textContent = 'Амжилттай худалдан авлаа! Одоо номоо уншаарай.';
+    purchaseMessage.style.color = 'var(--success)';
+    updateOwnedBooks();
+    setTimeout(closePurchaseModal, 2000);
+  });
+
+  function updateOwnedBooks() {
+    if (!currentUser) return;
+    const owned = JSON.parse(localStorage.getItem(`owned_${currentUser}`) || '[]');
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+      if (owned.includes(btn.dataset.bookId)) {
+        btn.textContent = '📖 Уншах';
+        btn.classList.replace('btn--primary', 'btn--success');
+      }
+    });
+  }
+
+  signInBtn.addEventListener('click', openModal);
+  function openModal() {
+    authModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('username').focus(), 80);
+  }
+  modalClose.addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', closeModal);
+  function closeModal() {
+    authModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    authMessage.textContent = '';
+    authForm.reset();
+  }
+
+  loginTab.addEventListener('click', () => {
+    isLogin = true;
+    loginTab.classList.add('active');    registerTab.classList.remove('active');
+    modalTitle.textContent = 'Нэвтрэх'; authSubmit.textContent = 'Нэвтрэх';
+    confirmPasswordGroup.classList.add('hidden');
+    document.getElementById('confirmPassword').required = false;
+  });
+  registerTab.addEventListener('click', () => {
+    isLogin = false;
+    registerTab.classList.add('active'); loginTab.classList.remove('active');
+    modalTitle.textContent = 'Бүртгүүлэх'; authSubmit.textContent = 'Бүртгүүлэх';
+    confirmPasswordGroup.classList.remove('hidden');
+    document.getElementById('confirmPassword').required = true;
+  });
+
+  authForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const username  = document.getElementById('username').value.trim();
+    const password  = document.getElementById('password').value;
+    const confirmPw = document.getElementById('confirmPassword').value;
+    const users     = JSON.parse(localStorage.getItem('users') || '{}');
+
+    if (isLogin) {
+      if (users[username] && users[username] === password) {
+        authMessage.textContent = ' Амжилттай нэвтэрлээ!';
+        authMessage.style.color = 'var(--success)';
+        localStorage.setItem('loggedInUser', username);
+        currentUser = username;
+        setTimeout(() => {
+          closeModal(); setLoggedInUI(username); updateOwnedBooks();
+          showToast('Тавтай морилно уу! 🎉', 'success');
+        }, 900);
+      } else {
+        authMessage.textContent = ' Нэвтрэх нэр эсвэл нууц үг буруу байна.';
+        authMessage.style.color = 'var(--danger)';
+      }
+    } else {
+      if (password.length < 6) { authMessage.textContent = 'Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой.'; authMessage.style.color = 'var(--danger)'; return; }
+      if (password !== confirmPw) { authMessage.textContent = ' Нууц үг таарахгүй байна.'; authMessage.style.color = 'var(--danger)'; return; }
+      if (users[username]) { authMessage.textContent = ' Энэ нэвтрэх нэр аль хэдийн бүртгэлтэй байна.'; authMessage.style.color = 'var(--danger)'; return; }
+      users[username] = password;
+      localStorage.setItem('users', JSON.stringify(users));
+      authMessage.textContent = '✅ Бүртгэл амжилттай! Нэвтрэх рүү шилжиж байна...';
+      authMessage.style.color = 'var(--success)';
+      setTimeout(() => loginTab.click(), 1100);
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (authModal.getAttribute('aria-hidden')     === 'false') closeModal();
+    else if (purchaseModal.getAttribute('aria-hidden') === 'false') closePurchaseModal();
+  });
+
+  const backToTopButton = document.getElementById('backToTop');
+  backToTopButton.addEventListener('click', () =>
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' }));
+  window.addEventListener('scroll', () =>
+    backToTopButton.classList.toggle('show', window.scrollY > 300));
+
+  document.getElementById('getAppBtn').addEventListener('click', () =>
+    showToast('Апп удахгүй гарна! 🚀', 'info'));
+  </script>
+</body>
+</html>
